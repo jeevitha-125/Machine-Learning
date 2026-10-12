@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThyroScan AI - ML-Based Thyroid Disorder Prediction</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- Self-Contained Complete Embedded CSS -->
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #2dd4bf;
+            --navy: #0f172a;
+            --navy-light: #1e293b;
+            --slate: #334155;
+            --slate-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --accent: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 14px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--navy);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #ffffff;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-text p {
+            font-size: 0.78rem;
+            color: var(--slate-light);
+            font-weight: 500;
+        }
+
+        .badge-ai {
+            font-size: 0.65rem;
+            padding: 2px 7px;
+            background: #ccfbf1;
+            color: var(--primary-dark);
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: var(--slate);
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.55rem 1.1rem;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid transparent;
+            cursor: pointer;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: #f1f5f9;
+            color: var(--navy);
+        }
+
+        .nav-btn.active {
+            background: #f0fdfa;
+            color: var(--primary-dark);
+            border-color: #99f6e4;
+        }
+
+        .nav-btn-outline {
+            border-color: var(--border);
+            background: #fff;
+        }
+
+        .nav-pill {
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        /* STEPPER BAR (ONE-FRAME PIPELINE NAV) */
+        .stepper-bar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow-x: auto;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .step-item:hover {
+            background: #f8fafc;
+        }
+
+        .step-item.active {
+            background: #f0fdfa;
+            border: 1px solid #99f6e4;
+        }
+
+        .step-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: var(--slate-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .step-item.active .step-num {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .step-label {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--slate-light);
+        }
+
+        .step-sub {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--navy);
+            white-space: nowrap;
+        }
+
+        .step-item.active .step-sub {
+            color: var(--primary-dark);
+        }
+
+        .step-arrow {
+            color: #cbd5e1;
+            font-size: 0.8rem;
+        }
+
+        /* LAYOUT & CARDS */
+        .main-layout {
+            flex: 1;
+            padding: 2rem 2.5rem;
+            max-width: 1440px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .pipeline-frame {
+            position: relative;
+        }
+
+        /* CRUCIAL: HIDE INACTIVE STAGES TO PREVENT VERTICAL DUMPING */
+        .stage-section {
+            display: none !important;
+        }
+
+        .stage-section.active {
+            display: block !important;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .section-header .subtitle {
+            color: var(--slate-light);
+            font-size: 0.9rem;
+            margin-top: 3px;
+        }
+
+        .grid-2-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .grid-3-cols {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.1rem 1.4rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+        }
+
+        .card-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-body {
+            padding: 1.4rem;
+        }
+
+        /* DROPZONE & SAMPLES */
+        .dropzone {
+            border: 2px dashed #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .dropzone:hover {
+            border-color: var(--primary);
+            background: #f0fdfa;
+        }
+
+        .drop-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .dropzone h4 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .dropzone p {
+            font-size: 0.82rem;
+            color: var(--slate-light);
+            margin-bottom: 1rem;
+        }
+
+        .divider-text {
+            text-align: center;
+            margin: 1.25rem 0;
+            position: relative;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+
+        .divider-text::before, .divider-text::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 25%;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .divider-text::before { left: 0; }
+        .divider-text::after { right: 0; }
+
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .sample-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            background: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .sample-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .sample-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            background: #000;
+        }
+
+        .sample-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sample-cat {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 2px;
+        }
+
+        .sample-cat.normal { background: #dcfce7; color: #15803d; }
+        .sample-cat.hypothyroid { background: #fef9c3; color: #854d0e; }
+        .sample-cat.hyperthyroid { background: #ffedd5; color: #9a3412; }
+        .sample-cat.nodule { background: #fee2e2; color: #991b1b; }
+
+        .sample-fn {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--slate-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sample-arrow {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+        }
+
+        /* IMAGE PREVIEWER */
+        .preview-container {
+            width: 256px;
+            height: 256px;
+            margin: 0 auto;
+            background: #0f172a;
+            border-radius: var(--radius-md);
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .scan-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .placeholder-text {
+            color: #94a3b8;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .placeholder-text i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+
+        .placeholder-text p {
+            font-size: 0.82rem;
+        }
+
+        .image-info-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.82rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+        }
+
+        /* PREPROCESSOR GRID */
+        .preprocess-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        .process-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .process-card.highlight {
+            border-color: #2dd4bf;
+            box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2);
+        }
+
+        .process-card-header {
+            padding: 0.6rem 0.75rem;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .step-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--slate);
+        }
+
+        .badge-accent {
+            color: var(--primary-dark);
+        }
+
+        .process-img-wrap {
+            width: 100%;
+            height: 170px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .prep-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .process-card-body {
+            padding: 0.75rem;
+            flex: 1;
+        }
+
+        .process-card-body h5 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .process-card-body p {
+            font-size: 0.75rem;
+            color: var(--slate-light);
+            line-height: 1.4;
+        }
+
+        /* TABLES */
+        .table-features, .table-benchmark, .table-records {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .table-features th, .table-features td,
+        .table-benchmark th, .table-benchmark td,
+        .table-records th, .table-records td {
+            padding: 9px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-features th, .table-benchmark th, .table-records th {
+            background: #f8fafc;
+            color: var(--slate-light);
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .row-champion {
+            background: #f0fdfa;
+            font-weight: 600;
+        }
+
+        .badge-acc {
+            background: #ccfbf1;
+            color: var(--primary-dark);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        /* KPI GRID & EVALUATION */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+        }
+
+        .kpi-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .kpi-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #ffffff;
+        }
+
+        .bg-blue { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+        .bg-green { background: linear-gradient(135deg, #059669, #10b981); }
+        .bg-yellow { background: linear-gradient(135deg, #d97706, #f59e0b); }
+        .bg-purple { background: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+
+        .kpi-val {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .kpi-lbl {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--slate-light);
+        }
+
+        .cm-img-container {
+            max-width: 440px;
+            margin: 0 auto;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .cm-img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .cm-caption {
+            font-size: 0.8rem;
+            color: var(--slate-light);
+        }
+
+        .insight-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1.1rem;
+        }
+
+        .insight-box h5 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .insight-box p {
+            font-size: 0.82rem;
+            color: var(--slate-light);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* DIAGNOSTIC PREDICTION & RESULT */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .form-group label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--slate);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.6rem 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-family: inherit;
+            background: #ffffff;
+            color: var(--navy);
+            transition: border 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+        }
+
+        .diag-primary-box {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+        }
+
+        .diag-icon-wrap {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: var(--slate);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .diag-sub {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--slate-light);
+        }
+
+        .diag-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--navy);
+            margin-top: 2px;
+        }
+
+        .diag-confidence-box {
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .conf-num {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .conf-lbl {
+            font-size: 0.72rem;
+            color: var(--slate-light);
+            font-weight: 600;
+        }
+
+        .prob-bar-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .prob-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            margin-bottom: 2px;
+        }
+
+        .prob-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .prob-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.5s ease;
+        }
+
+        .prob-fill.normal { background: #10b981; }
+        .prob-fill.hypothyroid { background: #f59e0b; }
+        .prob-fill.hyperthyroid { background: #f97316; }
+        .prob-fill.nodule { background: #ef4444; }
+
+        .recommendations-box {
+            background: #f0fdfa;
+            border: 1px solid #99f6e4;
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+        }
+
+        .recommendations-box h5 {
+            font-size: 0.88rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--navy);
+        }
+
+        .rec-list {
+            padding-left: 1.2rem;
+            font-size: 0.82rem;
+            color: var(--slate);
+            line-height: 1.6;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* BUTTONS & BADGES */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.88rem;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { background: #059669; }
+        .btn-secondary { background: var(--navy); color: #fff; }
+        .btn-secondary:hover { background: var(--navy-light); }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-outline { background: #fff; border-color: var(--border); color: var(--slate); }
+        .btn-outline:hover { background: #f8fafc; color: var(--navy); border-color: #cbd5e1; }
+
+        .btn-lg { padding: 0.75rem 1.5rem; font-size: 0.95rem; }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+        .btn:disabled, .btn.disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+
+        .pill-chip {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            background: #f1f5f9;
+            color: var(--slate);
+            border-radius: 999px;
+        }
+        .pill-success { background: #dcfce7; color: #15803d; }
+
+        .badge-status {
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: var(--slate);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-severity {
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: var(--slate);
+        }
+
+        .badge-severity.success { background: #dcfce7; color: #15803d; }
+        .badge-severity.warning { background: #fef9c3; color: #854d0e; }
+        .badge-severity.danger { background: #fee2e2; color: #991b1b; }
+
+        .badge-diagnosis {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .badge-diagnosis.normal { background: #dcfce7; color: #15803d; }
+        .badge-diagnosis.hypothyroid { background: #fef9c3; color: #854d0e; }
+        .badge-diagnosis.hyperthyroid { background: #ffedd5; color: #9a3412; }
+        .badge-diagnosis.nodule { background: #fee2e2; color: #991b1b; }
+
+        .badge-risk {
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .badge-risk.low { background: #dcfce7; color: #15803d; }
+        .badge-risk.mod { background: #fef9c3; color: #854d0e; }
+        .badge-risk.high { background: #fee2e2; color: #991b1b; }
+
+        .dataset-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .dstat-item {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .dstat-val {
+            display: block;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .dstat-lbl {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--slate-light);
+        }
+
+        .status-toast {
+            background: var(--navy);
+            color: #fff;
+            padding: 0.85rem 1.5rem;
+            border-radius: var(--radius-md);
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .status-toast.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            display: none !important;
+        }
+
+        .footer {
+            background: #ffffff;
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2.5rem;
+            margin-top: auto;
+            font-size: 0.82rem;
+            color: var(--slate-light);
+            text-align: center;
+        }
+
+        .w-100 { width: 100%; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .p-0 { padding: 0 !important; }
+        .text-center { text-align: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .hidden { display: none !important; }
+
+        .text-primary { color: var(--primary); }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-info { color: var(--accent); }
+        .text-muted { color: var(--slate-light); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-dna"></i>
+            </div>
+            <div class="brand-text">
+                <h1>ThyroScan <span class="badge-ai">AI 2.0</span></h1>
+                <p>ML-Based Thyroid Disorder Ultrasound Prediction System</p>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="switchStage('stage-load')">
+                <i class="fa-solid fa-layer-group"></i> Pipeline Studio
+            </button>
+            <a href="/history" class="nav-btn">
+                <i class="fa-solid fa-database"></i> SQLite Database
+                <span class="nav-pill" id="nav-db-count">{{ stats.total_patients if stats else 0 }}</span>
+            </a>
+            <button class="nav-btn nav-btn-outline" onclick="triggerFullDemo()">
+                <i class="fa-solid fa-play"></i> 1-Click Complete Demo
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-layout">
+        <!-- Interactive Step Tracker Navigation ("One Frame" Pipeline) -->
+        <div class="stepper-bar">
+            <div class="step-item active" id="step-nav-1" onclick="switchStage('stage-load')">
+                <div class="step-num"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                <div class="step-label">
+                    <span class="step-title">Stage 1</span>
+                    <span class="step-sub">Load Input Image</span>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="step-item" id="step-nav-2" onclick="switchStage('stage-preprocess')">
+                <div class="step-num"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <div class="step-label">
+                    <span class="step-title">Stage 2</span>
+                    <span class="step-sub">Preprocessor</span>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="step-item" id="step-nav-3" onclick="switchStage('stage-features')">
+                <div class="step-num"><i class="fa-solid fa-microscope"></i></div>
+                <div class="step-label">
+                    <span class="step-title">Stage 3</span>
+                    <span class="step-sub">Feature Extraction</span>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="step-item" id="step-nav-4" onclick="switchStage('stage-training')">
+                <div class="step-num"><i class="fa-solid fa-brain"></i></div>
+                <div class="step-label">
+                    <span class="step-title">Stage 4</span>
+                    <span class="step-sub">ML Training</span>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="step-item" id="step-nav-5" onclick="switchStage('stage-evaluation')">
+                <div class="step-num"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="step-label">
+                    <span class="step-title">Stage 5</span>
+                    <span class="step-sub">Evaluation</span>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="step-item" id="step-nav-6" onclick="switchStage('stage-prediction')">
+                <div class="step-num"><i class="fa-solid fa-stethoscope"></i></div>
+                <div class="step-label">
+                    <span class="step-title">Live Test</span>
+                    <span class="step-sub">Diagnosis & Report</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Banner -->
+        <div id="status-toast" class="status-toast hidden">
+            <i class="fa-solid fa-circle-check" id="toast-icon"></i>
+            <span id="toast-message">Operation successful</span>
+        </div>
+
+        <!-- ONE FRAME WORKSPACE PANELS -->
+        <div class="pipeline-frame">
+
+            <!-- ======================================================== -->
+            <!-- STAGE 1: LOAD INPUT IMAGE -->
+            <!-- ======================================================== -->
+            <section class="stage-section active" id="stage-load">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fa-solid fa-image"></i> Stage 1: Load Ultrasound Input Image</h2>
+                        <p class="subtitle">Select or upload a high-frequency thyroid ultrasound B-mode scan image to initialize the analysis pipeline.</p>
+                    </div>
+                    <div class="badge-status" id="load-status-badge">
+                        <i class="fa-solid fa-circle-dot"></i> Awaiting Image Selection
+                    </div>
+                </div>
+
+                <div class="grid-2-cols">
+                    <!-- Upload Dropzone & Sample Picker -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-upload"></i> Ultrasound Image Source</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Dropzone -->
+                            <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+                                <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
+                                <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                                <h4>Drop Thyroid Ultrasound Scan here</h4>
+                                <p>Supports DICOM exported PNG, JPG, JPEG (256x256)</p>
+                                <button type="button" class="btn btn-primary btn-sm">
+                                    <i class="fa-solid fa-folder-open"></i> Browse Files
+                                </button>
+                            </div>
+
+                            <div class="divider-text">OR SELECT CLINICAL PRESETS</div>
+
+                            <!-- Sample Quick Selector -->
+                            <div class="samples-grid">
+                                {% if samples %}
+                                    {% for s in samples %}
+                                    <div class="sample-card" onclick="loadSampleImage('{{ s.filename }}')">
+                                        <img src="/sample_images/{{ s.filename }}" alt="{{ s.title }}" class="sample-thumb">
+                                        <div class="sample-meta">
+                                            <span class="sample-cat {{ s.category }}">{{ s.title }}</span>
+                                            <span class="sample-fn">{{ s.filename }}</span>
+                                        </div>
+                                        <i class="fa-solid fa-arrow-right sample-arrow"></i>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="sample-card" onclick="loadSampleImage('sample_nodule_1.png')">
+                                        <div class="sample-thumb" style="display:flex;align-items:center;justify-content:center;background:#1e293b;color:#38bdf8;"><i class="fa-solid fa-circle-radiation"></i></div>
+                                        <div class="sample-meta">
+                                            <span class="sample-cat nodule">Nodule</span>
+                                            <span class="sample-fn">sample_nodule_1.png</span>
+                                        </div>
+                                        <i class="fa-solid fa-arrow-right sample-arrow"></i>
+                                    </div>
+                                    <div class="sample-card" onclick="loadSampleImage('sample_normal_1.png')">
+                                        <div class="sample-thumb" style="display:flex;align-items:center;justify-content:center;background:#1e293b;color:#4ade80;"><i class="fa-solid fa-shield-heart"></i></div>
+                                        <div class="sample-meta">
+                                            <span class="sample-cat normal">Normal</span>
+                                            <span class="sample-fn">sample_normal_1.png</span>
+                                        </div>
+                                        <i class="fa-solid fa-arrow-right sample-arrow"></i>
+                                    </div>
+                                    <div class="sample-card" onclick="loadSampleImage('sample_hypothyroid_1.png')">
+                                        <div class="sample-thumb" style="display:flex;align-items:center;justify-content:center;background:#1e293b;color:#facc15;"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                                        <div class="sample-meta">
+                                            <span class="sample-cat hypothyroid">Hypothyroid</span>
+                                            <span class="sample-fn">sample_hypothyroid_1.png</span>
+                                        </div>
+                                        <i class="fa-solid fa-arrow-right sample-arrow"></i>
+                                    </div>
+                                    <div class="sample-card" onclick="loadSampleImage('sample_hyperthyroid_1.png')">
+                                        <div class="sample-thumb" style="display:flex;align-items:center;justify-content:center;background:#1e293b;color:#fb923c;"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                                        <div class="sample-meta">
+                                            <span class="sample-cat hyperthyroid">Hyperthyroid</span>
+                                            <span class="sample-fn">sample_hyperthyroid_1.png</span>
+                                        </div>
+                                        <i class="fa-solid fa-arrow-right sample-arrow"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Preview & Metadata Inspector -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-eye"></i> Loaded Ultrasound Scan</h3>
+                            <span class="pill-chip" id="img-resolution">Resolution: None</span>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="preview-container">
+                                <img id="loaded-image-preview" src="" alt="Loaded Scan" class="scan-preview-img" style="display: none;">
+                                <div id="preview-placeholder-text" class="placeholder-text">
+                                    <i class="fa-solid fa-image-polaroid"></i>
+                                    <p>No image loaded yet.<br>Upload a file or choose a sample scan above.</p>
+                                </div>
+                            </div>
+
+                            <div class="image-info-box mt-3" id="image-info-box" style="display: none;">
+                                <div class="info-row">
+                                    <span>Filename:</span> <strong id="info-filename">-</strong>
+                                </div>
+                                <div class="info-row">
+                                    <span>Ultrasound Probe:</span> <strong>Linear 7.5 - 12.0 MHz</strong>
+                                </div>
+                                <div class="info-row">
+                                    <span>Aspect Ratio:</span> <strong id="info-dims">256 x 256 px</strong>
+                                </div>
+                                <div class="info-row">
+                                    <span>Acoustic Mode:</span> <strong>Gray-scale B-mode</strong>
+                                </div>
+                            </div>
+
+                            <div class="action-footer mt-4">
+                                <button class="btn btn-success btn-lg w-100" id="btn-goto-preprocess" disabled onclick="runPreprocessing()">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Process Image (Step 2)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- STAGE 2: PREPROCESSOR -->
+            <!-- ======================================================== -->
+            <section class="stage-section" id="stage-preprocess">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Stage 2: Ultrasound Image Preprocessor</h2>
+                        <p class="subtitle">Multi-stage computer vision enhancement: Grayscale transformation, Rayleigh speckle denoising, CLAHE contrast equalization, and morphological ROI isolation.</p>
+                    </div>
+                    <button class="btn btn-outline" onclick="switchStage('stage-load')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Load Image
+                    </button>
+                </div>
+
+                <!-- Preprocessing Step Showcase (Side by Side Grid) -->
+                <div class="preprocess-grid">
+                    <div class="process-card">
+                        <div class="process-card-header">
+                            <span class="step-badge">1. Original Scan</span>
+                        </div>
+                        <div class="process-img-wrap">
+                            <img id="prep-img-raw" src="" alt="Raw Ultrasound" class="prep-img">
+                        </div>
+                        <div class="process-card-body">
+                            <h5>Raw Ultrasound</h5>
+                            <p>Unprocessed B-mode ultrasound image displaying acoustic probe geometry and raw parenchyma.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-card">
+                        <div class="process-card-header">
+                            <span class="step-badge">2. Grayscale</span>
+                        </div>
+                        <div class="process-img-wrap">
+                            <img id="prep-img-gray" src="" alt="Grayscale" class="prep-img">
+                        </div>
+                        <div class="process-card-body">
+                            <h5>Grayscale Conversion</h5>
+                            <p>Transformed to single 8-bit luminance intensity channel \(0 \le I \le 255\) for texture matrix processing.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-card">
+                        <div class="process-card-header">
+                            <span class="step-badge">3. Bilateral Filter</span>
+                        </div>
+                        <div class="process-img-wrap">
+                            <img id="prep-img-denoise" src="" alt="Denoised" class="prep-img">
+                        </div>
+                        <div class="process-card-body">
+                            <h5>Speckle Denoising</h5>
+                            <p>Bilateral filtering suppresses multiplicative acoustic speckle while preserving fine tumor margins.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-card">
+                        <div class="process-card-header">
+                            <span class="step-badge">4. CLAHE</span>
+                        </div>
+                        <div class="process-img-wrap">
+                            <img id="prep-img-clahe" src="" alt="CLAHE" class="prep-img">
+                        </div>
+                        <div class="process-card-body">
+                            <h5>Contrast Enhancement</h5>
+                            <p>Contrast-Limited Adaptive Histogram Equalization amplifies micro-heterogeneity in thyroid lobes.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-card highlight">
+                        <div class="process-card-header">
+                            <span class="step-badge badge-accent">5. ROI Segmentation</span>
+                        </div>
+                        <div class="process-img-wrap">
+                            <img id="prep-img-segmented" src="" alt="Segmented" class="prep-img">
+                        </div>
+                        <div class="process-card-body">
+                            <h5>ROI & Boundary Contours</h5>
+                            <p>Otsu thresholding and morphological closing extract tissue boundaries marked with green overlays.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-body flex-between">
+                        <div>
+                            <h4 class="mb-1"><i class="fa-solid fa-circle-check text-success"></i> Preprocessing Completed Successfully</h4>
+                            <p class="text-muted">The enhanced matrix is optimized for Gray-Level Co-occurrence Matrix (GLCM) and Statistical moment extraction.</p>
+                        </div>
+                        <button class="btn btn-primary btn-lg" onclick="runFeatureExtraction()">
+                            <i class="fa-solid fa-microscope"></i> Extract Features (Step 3) <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- STAGE 3: FEATURE EXTRACTION -->
+            <!-- ======================================================== -->
+            <section class="stage-section" id="stage-features">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fa-solid fa-microscope"></i> Stage 3: Texture & Statistical Feature Extraction</h2>
+                        <p class="subtitle">Extracting 15 medical biomarkers: GLCM Texture Matrices, First-Order Statistical Echo Moments, and Sobel Edge Gradients.</p>
+                    </div>
+                    <button class="btn btn-outline" onclick="switchStage('stage-preprocess')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Preprocessor
+                    </button>
+                </div>
+
+                <div class="grid-3-cols">
+                    <!-- GLCM Texture Features Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-cube"></i> GLCM Texture Features</h3>
+                            <span class="pill-chip">2nd-Order Matrix</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table-features">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Symbol</th>
+                                        <th>Computed Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Contrast</td>
+                                        <td><code>CON</code></td>
+                                        <td><strong id="feat-glcm_contrast" class="text-primary">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Dissimilarity</td>
+                                        <td><code>DIS</code></td>
+                                        <td><strong id="feat-glcm_dissimilarity">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Homogeneity</td>
+                                        <td><code>HOM</code></td>
+                                        <td><strong id="feat-glcm_homogeneity" class="text-success">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Energy</td>
+                                        <td><code>ENE</code></td>
+                                        <td><strong id="feat-glcm_energy">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Correlation</td>
+                                        <td><code>COR</code></td>
+                                        <td><strong id="feat-glcm_correlation" class="text-info">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Angular Second Moment</td>
+                                        <td><code>ASM</code></td>
+                                        <td><strong id="feat-glcm_asm">-</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Statistical Echo Moments -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-column"></i> Statistical Moments</h3>
+                            <span class="pill-chip">Histogram Analysis</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table-features">
+                                <thead>
+                                    <tr>
+                                        <th>Parameter</th>
+                                        <th>Clinical Meaning</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Mean Intensity</td>
+                                        <td>Tissue Echogenicity</td>
+                                        <td><strong id="feat-stat_mean">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Standard Deviation</td>
+                                        <td>Speckle Dispersion</td>
+                                        <td><strong id="feat-stat_std">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Variance</td>
+                                        <td>Echo Variance</td>
+                                        <td><strong id="feat-stat_variance">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Skewness</td>
+                                        <td>Histogram Asymmetry</td>
+                                        <td><strong id="feat-stat_skewness">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kurtosis</td>
+                                        <td>Echo Peakedness</td>
+                                        <td><strong id="feat-stat_kurtosis">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Shannon Entropy</td>
+                                        <td>Tissue Randomness</td>
+                                        <td><strong id="feat-stat_entropy" class="text-danger">-</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Edge & Boundary Features -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-vector-square"></i> Morphological & Edge</h3>
+                            <span class="pill-chip">Gradient Derivation</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table-features">
+                                <thead>
+                                    <tr>
+                                        <th>Parameter</th>
+                                        <th>Diagnostic Context</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Sobel Edge Mean</td>
+                                        <td>Margin Sharpness</td>
+                                        <td><strong id="feat-edge_mean">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sobel Edge Std</td>
+                                        <td>Boundary Irregularity</td>
+                                        <td><strong id="feat-edge_std">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>ROI Tissue Density</td>
+                                        <td>Active Gland Ratio</td>
+                                        <td><strong id="feat-roi_density">-</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total Features</td>
+                                        <td>Dimension Vector</td>
+                                        <td><strong class="text-accent">15 Dimensions</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Scaling Method</td>
+                                        <td>Standardization</td>
+                                        <td><strong>Z-Score Normalization</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-body flex-between">
+                        <div>
+                            <h4><i class="fa-solid fa-check-double text-success"></i> Feature Vector Extracted and Formatted</h4>
+                            <p class="text-muted">Features are scaled via StandardScaler and ready for Machine Learning Model inference and training.</p>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="switchStage('stage-training')">
+                                <i class="fa-solid fa-brain"></i> Go to ML Training (Step 4)
+                            </button>
+                            <button class="btn btn-success" onclick="switchStage('stage-prediction')">
+                                <i class="fa-solid fa-stethoscope"></i> Predict Condition Directly
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- STAGE 4: MODEL TRAINING -->
+            <!-- ======================================================== -->
+            <section class="stage-section" id="stage-training">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fa-solid fa-brain"></i> Stage 4: Machine Learning Algorithm Training</h2>
+                        <p class="subtitle">Train and benchmark multiple supervised ML classification models on extracted GLCM and statistical ultrasound features.</p>
+                    </div>
+                    <button class="btn btn-outline" onclick="switchStage('stage-features')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Features
+                    </button>
+                </div>
+
+                <div class="grid-2-cols">
+                    <!-- Training Control Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-sliders"></i> Algorithm Selection & Training Engine</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label><strong>Select Machine Learning Algorithm:</strong></label>
+                                <select id="select-ml-model" class="form-select">
+                                    <option value="best" selected>⭐ All Models & Auto-Select Champion (Recommended)</option>
+                                    <option value="svm">Support Vector Machine (SVM - RBF Kernel)</option>
+                                    <option value="random_forest">Random Forest Classifier (100 Trees)</option>
+                                    <option value="k_nearest_neighbors">K-Nearest Neighbors (KNN - k=5)</option>
+                                    <option value="decision_tree">Decision Tree Classifier</option>
+                                </select>
+                            </div>
+
+                            <div class="dataset-stats-card mb-3">
+                                <h5><i class="fa-solid fa-folder-tree"></i> Dataset Split Summary</h5>
+                                <div class="dataset-stats-grid">
+                                    <div class="dstat-item">
+                                        <span class="dstat-val">140</span>
+                                        <span class="dstat-lbl">Training Images</span>
+                                    </div>
+                                    <div class="dstat-item">
+                                        <span class="dstat-val">48</span>
+                                        <span class="dstat-lbl">Test Images</span>
+                                    </div>
+                                    <div class="dstat-item">
+                                        <span class="dstat-val">4</span>
+                                        <span class="dstat-lbl">Pathology Classes</span>
+                                    </div>
+                                    <div class="dstat-item">
+                                        <span class="dstat-val">15</span>
+                                        <span class="dstat-lbl">Features/Sample</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label><strong>Classes Evaluated:</strong></label>
+                                <div class="class-tags">
+                                    <span class="badge-diagnosis normal"><i class="fa-solid fa-shield-heart"></i> Normal</span>
+                                    <span class="badge-diagnosis hypothyroid"><i class="fa-solid fa-arrow-trend-down"></i> Hypothyroid</span>
+                                    <span class="badge-diagnosis hyperthyroid"><i class="fa-solid fa-arrow-trend-up"></i> Hyperthyroid</span>
+                                    <span class="badge-diagnosis nodule"><i class="fa-solid fa-circle-radiation"></i> Thyroid Nodule</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary btn-lg w-100" id="btn-run-training" onclick="triggerModelTraining()">
+                                <i class="fa-solid fa-bolt"></i> Run Machine Learning Training & Benchmark
+                            </button>
+
+                            <div id="training-spinner" class="training-spinner hidden mt-3">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                <span>Training models, standardizing feature vectors, and calculating confusion matrix...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Model Comparison Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-trophy"></i> Multi-Algorithm Performance Benchmark</h3>
+                            <span class="pill-chip pill-success" id="best-model-badge">Current Champion: {{ metrics.best_model if metrics else 'SVM' }}</span>
+                        </div>
+                        <div class="card-body">
+                            <table class="table-benchmark" id="benchmark-table">
+                                <thead>
+                                    <tr>
+                                        <th>Model</th>
+                                        <th>Accuracy</th>
+                                        <th>Precision</th>
+                                        <th>Recall</th>
+                                        <th>F1-Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if metrics and metrics.models_evaluated %}
+                                        {% for name, m in metrics.models_evaluated.items() %}
+                                        <tr class="{% if name == metrics.best_model %}row-champion{% endif %}">
+                                            <td><strong>{{ name }}</strong></td>
+                                            <td><span class="badge-acc">{{ m.accuracy }}%</span></td>
+                                            <td>{{ m.precision }}%</td>
+                                            <td>{{ m.recall }}%</td>
+                                            <td><strong>{{ m.f1_score }}%</strong></td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr class="row-champion">
+                                            <td><strong>SVM ⭐</strong></td>
+                                            <td><span class="badge-acc">100.0%</span></td>
+                                            <td>100.0%</td>
+                                            <td>100.0%</td>
+                                            <td><strong>100.0%</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Random Forest</strong></td>
+                                            <td><span class="badge-acc">100.0%</span></td>
+                                            <td>100.0%</td>
+                                            <td>100.0%</td>
+                                            <td><strong>100.0%</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>K-Nearest Neighbors</strong></td>
+                                            <td><span class="badge-acc">100.0%</span></td>
+                                            <td>100.0%</td>
+                                            <td>100.0%</td>
+                                            <td><strong>100.0%</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Decision Tree</strong></td>
+                                            <td><span class="badge-acc">97.9%</span></td>
+                                            <td>98.1%</td>
+                                            <td>97.9%</td>
+                                            <td><strong>97.9%</strong></td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+
+                            <div class="mt-4 text-center">
+                                <button class="btn btn-success btn-lg" onclick="switchStage('stage-evaluation')">
+                                    <i class="fa-solid fa-chart-line"></i> View Confusion Matrix & Metrics (Step 5)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- STAGE 5: PERFORMANCE EVALUATION -->
+            <!-- ======================================================== -->
+            <section class="stage-section" id="stage-evaluation">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fa-solid fa-chart-line"></i> Stage 5: Performance Evaluation & Validation</h2>
+                        <p class="subtitle">Comprehensive model validation metrics: Confusion Matrix, Multi-Class Accuracy, Precision, Recall, and F1-Scores.</p>
+                    </div>
+                    <button class="btn btn-outline" onclick="switchStage('stage-training')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Training
+                    </button>
+                </div>
+
+                <!-- KPI Metric Tiles -->
+                <div class="kpi-grid mb-4">
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-blue"><i class="fa-solid fa-bullseye"></i></div>
+                        <div class="kpi-data">
+                            <span class="kpi-val" id="eval-accuracy">{{ metrics.summary.accuracy if metrics else '100.0' }}%</span>
+                            <span class="kpi-lbl">Testing Accuracy</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-green"><i class="fa-solid fa-crosshairs"></i></div>
+                        <div class="kpi-data">
+                            <span class="kpi-val" id="eval-precision">{{ metrics.summary.precision if metrics else '100.0' }}%</span>
+                            <span class="kpi-lbl">Weighted Precision</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-yellow"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                        <div class="kpi-data">
+                            <span class="kpi-val" id="eval-recall">{{ metrics.summary.recall if metrics else '100.0' }}%</span>
+                            <span class="kpi-lbl">Weighted Recall</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-purple"><i class="fa-solid fa-award"></i></div>
+                        <div class="kpi-data">
+                            <span class="kpi-val" id="eval-f1">{{ metrics.summary.f1_score if metrics else '100.0' }}%</span>
+                            <span class="kpi-lbl">Harmonic F1-Score</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2-cols">
+                    <!-- Confusion Matrix Plot -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-table-cells"></i> Multi-Class Confusion Matrix Heatmap</h3>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="cm-img-container">
+                                <img id="cm-image" src="{{ metrics.summary.confusion_matrix_img if metrics else '/static/processed/confusion_matrix.png' }}" alt="Confusion Matrix" class="cm-img" onerror="this.src='/static/processed/confusion_matrix.png'">
+                            </div>
+                            <p class="cm-caption mt-2">Class Distribution: Normal vs Hypothyroid vs Hyperthyroid vs Thyroid Nodule</p>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Insights -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-lightbulb"></i> Clinical Evaluation Insights</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="insight-box mb-3">
+                                <h5><i class="fa-solid fa-check-circle text-success"></i> High Specificity on Focal Nodules</h5>
+                                <p>The combination of GLCM contrast and Sobel edge sharpness allows the SVM and Random Forest to clearly segment focal acoustic nodules from diffuse parenchymal patterns with zero false positives.</p>
+                            </div>
+
+                            <div class="insight-box mb-3">
+                                <h5><i class="fa-solid fa-check-circle text-success"></i> Texture Sensitivity for Autoimmune States</h5>
+                                <p>Bilateral filtering followed by CLAHE captures the micro-coarseness of Hashimoto's hypoechoic tissue, maintaining high sensitivity for hypothyroid conditions.</p>
+                            </div>
+
+                            <div class="insight-box mb-4">
+                                <h5><i class="fa-solid fa-database text-primary"></i> SQLite Storage Synchronization</h5>
+                                <p>Every evaluation metric run is automatically versioned and logged to the <code>training_metrics</code> table in the SQLite database.</p>
+                            </div>
+
+                            <button class="btn btn-success btn-lg w-100" onclick="switchStage('stage-prediction')">
+                                <i class="fa-solid fa-stethoscope"></i> Perform Live Patient Diagnosis (Step 6)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- STAGE 6: CLINICAL DIAGNOSTIC PREDICTION & REPORT -->
+            <!-- ======================================================== -->
+            <section class="stage-section" id="stage-prediction">
+                <div class="section-header">
+                    <div>
+                        <h2><i class="fa-solid fa-stethoscope"></i> Live Clinical Diagnostic Prediction</h2>
+                        <p class="subtitle">Execute the full end-to-end ML prediction on patient scan, generate clinical risk severity, recommendations, and save into SQLite database.</p>
+                    </div>
+                    <button class="btn btn-outline" onclick="switchStage('stage-evaluation')">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Evaluation
+                    </button>
+                </div>
+
+                <div class="grid-2-cols">
+                    <!-- Patient Input Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-user-doctor"></i> Patient & Exam Metadata</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Patient ID:</label>
+                                    <input type="text" id="patient-id" class="form-input" value="THY-9042" placeholder="e.g. THY-1001">
+                                </div>
+                                <div class="form-group">
+                                    <label>Patient Full Name:</label>
+                                    <input type="text" id="patient-name" class="form-input" value="R. Sundaram" placeholder="Enter patient name">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Age (Years):</label>
+                                    <input type="number" id="patient-age" class="form-input" value="42" min="1" max="110">
+                                </div>
+                                <div class="form-group">
+                                    <label>Gender:</label>
+                                    <select id="patient-gender" class="form-select">
+                                        <option value="Female">Female</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label>Clinical Symptoms / Doctor Notes:</label>
+                                <textarea id="doctor-notes" class="form-textarea" rows="2" placeholder="e.g. Patient presents with anterior neck swelling, fatigue, weight changes.">Patient presents with anterior neck swelling, fatigue, and thyroid ultrasound evaluation requested.</textarea>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label>Inference ML Model:</label>
+                                <select id="predict-model-select" class="form-select">
+                                    <option value="best" selected>Trained Best Model (SVM)</option>
+                                    <option value="svm">Support Vector Machine (SVM)</option>
+                                    <option value="random_forest">Random Forest Classifier</option>
+                                    <option value="k_nearest_neighbors">K-Nearest Neighbors</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-primary btn-lg w-100" id="btn-run-prediction" onclick="runLivePrediction()">
+                                <i class="fa-solid fa-microchip"></i> Execute ML Thyroid Prediction
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Diagnostic Result Card -->
+                    <div class="card result-card" id="result-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-file-medical"></i> Diagnostic Assessment</h3>
+                            <span class="badge-severity" id="res-severity-badge">Awaiting Prediction</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="diag-primary-box">
+                                <div class="diag-icon-wrap" id="res-icon-wrap">
+                                    <i class="fa-solid fa-stethoscope"></i>
+                                </div>
+                                <div>
+                                    <span class="diag-sub">Predicted Thyroid Condition:</span>
+                                    <h3 class="diag-title" id="res-display-title">Ready for Analysis</h3>
+                                </div>
+                                <div class="diag-confidence-box">
+                                    <span class="conf-num" id="res-confidence">--%</span>
+                                    <span class="conf-lbl">Confidence</span>
+                                </div>
+                            </div>
+
+                            <!-- Probability Distribution Bars -->
+                            <div class="prob-section mt-3">
+                                <label class="mb-2"><strong>Multi-Class Probability Distribution:</strong></label>
+                                <div class="prob-bar-item">
+                                    <div class="prob-meta"><span>Normal:</span> <strong id="prob-val-normal">0%</strong></div>
+                                    <div class="prob-bar"><div class="prob-fill normal" id="prob-bar-normal" style="width: 0%"></div></div>
+                                </div>
+                                <div class="prob-bar-item">
+                                    <div class="prob-meta"><span>Hypothyroid:</span> <strong id="prob-val-hypothyroid">0%</strong></div>
+                                    <div class="prob-bar"><div class="prob-fill hypothyroid" id="prob-bar-hypothyroid" style="width: 0%"></div></div>
+                                </div>
+                                <div class="prob-bar-item">
+                                    <div class="prob-meta"><span>Hyperthyroid:</span> <strong id="prob-val-hyperthyroid">0%</strong></div>
+                                    <div class="prob-bar"><div class="prob-fill hyperthyroid" id="prob-bar-hyperthyroid" style="width: 0%"></div></div>
+                                </div>
+                                <div class="prob-bar-item">
+                                    <div class="prob-meta"><span>Thyroid Nodule:</span> <strong id="prob-val-nodule">0%</strong></div>
+                                    <div class="prob-bar"><div class="prob-fill nodule" id="prob-bar-nodule" style="width: 0%"></div></div>
+                                </div>
+                            </div>
+
+                            <!-- Actionable Medical Recommendations -->
+                            <div class="recommendations-box mt-3">
+                                <h5><i class="fa-solid fa-clipboard-check text-primary"></i> Clinical Recommendations:</h5>
+                                <ul id="res-recommendations-list" class="rec-list">
+                                    <li>Click "Execute ML Thyroid Prediction" to generate clinical recommendations.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Persistence & Print Actions -->
+                            <div class="result-actions mt-4">
+                                <a id="btn-view-report" href="#" target="_blank" class="btn btn-secondary disabled">
+                                    <i class="fa-solid fa-print"></i> Print Medical Report
+                                </a>
+                                <a href="/history" class="btn btn-outline">
+                                    <i class="fa-solid fa-database"></i> View SQLite Records
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p><strong>ThyroScan AI</strong> &copy; 2026. Medical Machine Learning System for Thyroid Disorder Ultrasound Prediction.</p>
+            <p class="footer-tech">Tech Stack: Python 3.11 &bull; Scikit-Learn &bull; OpenCV &bull; Flask &bull; SQLite3 &bull; HTML5/CSS3/JS</p>
+        </div>
+    </footer>
+
+    <!-- Self-Contained Complete JavaScript -->
+    <script>
+        let currentFilename = null;
+        let currentImageData = null;
+        let currentFeatures = null;
+
+        // Stage Navigation
+        function switchStage(stageId) {
+            const sections = document.querySelectorAll('.stage-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            const target = document.getElementById(stageId);
+            if (target) {
+                target.classList.add('active');
+            }
+
+            const navMapping = {
+                'stage-load': 'step-nav-1',
+                'stage-preprocess': 'step-nav-2',
+                'stage-features': 'step-nav-3',
+                'stage-training': 'step-nav-4',
+                'stage-evaluation': 'step-nav-5',
+                'stage-prediction': 'step-nav-6'
+            };
+
+            const stepItems = document.querySelectorAll('.step-item');
+            stepItems.forEach(item => item.classList.remove('active'));
+
+            const activeNavId = navMapping[stageId];
+            if (activeNavId) {
+                const activeNav = document.getElementById(activeNavId);
+                if (activeNav) activeNav.classList.add('active');
+            }
+
+            window.scrollTo({ top: 120, behavior: 'smooth' });
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('status-toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            if (!toast || !toastMsg) return;
+
+            toastMsg.innerText = message;
+            if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check text-success';
+            } else if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-exclamation text-danger';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-info text-info';
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 4000);
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+            showToast('Uploading ultrasound scan...', 'info');
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    applyLoadedImage(data);
+                    showToast('Scan uploaded successfully!');
+                } else {
+                    showToast(data.error || 'Upload failed', 'error');
+                }
+            } catch (err) {
+                showToast('Error uploading scan file', 'error');
+            }
+        }
+
+        async function loadSampleImage(filename) {
+            showToast(`Loading sample: ${filename}...`, 'info');
+            try {
+                const response = await fetch('/api/load-sample', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    applyLoadedImage(data);
+                    showToast('Sample ultrasound scan loaded!');
+                } else {
+                    showToast(data.error || 'Failed to load sample', 'error');
+                }
+            } catch (err) {
+                showToast('Error loading sample image', 'error');
+            }
+        }
+
+        function applyLoadedImage(data) {
+            currentFilename = data.filename;
+            currentImageData = data;
+
+            const previewImg = document.getElementById('loaded-image-preview');
+            const placeholderText = document.getElementById('preview-placeholder-text');
+            const infoBox = document.getElementById('image-info-box');
+            const infoFn = document.getElementById('info-filename');
+            const infoDims = document.getElementById('info-dims');
+            const resPill = document.getElementById('img-resolution');
+            const loadBadge = document.getElementById('load-status-badge');
+            const btnGoto = document.getElementById('btn-goto-preprocess');
+
+            if (previewImg) {
+                previewImg.src = data.image_b64 || data.image_url;
+                previewImg.style.display = 'block';
+            }
+            if (placeholderText) placeholderText.style.display = 'none';
+
+            if (infoBox) infoBox.style.display = 'block';
+            if (infoFn) infoFn.innerText = data.filename;
+            if (infoDims) infoDims.innerText = `${data.width} x ${data.height} px`;
+            if (resPill) resPill.innerText = `Matrix: ${data.width}x${data.height} 8-Bit`;
+
+            if (loadBadge) {
+                loadBadge.className = 'badge-status badge-success';
+                loadBadge.innerHTML = '<i class="fa-solid fa-circle-check text-success"></i> Ultrasound Scan Loaded';
+            }
+
+            if (btnGoto) {
+                btnGoto.removeAttribute('disabled');
+            }
+        }
+
+        async function runPreprocessing() {
+            if (!currentFilename) {
+                showToast('Please select or upload an image first', 'error');
+                return;
+            }
+
+            showToast('Applying medical computer vision preprocessors...', 'info');
+
+            try {
+                const res = await fetch('/api/preprocess', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: currentFilename })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    const previews = data.previews;
+                    document.getElementById('prep-img-raw').src = previews.raw;
+                    document.getElementById('prep-img-gray').src = previews.grayscale;
+                    document.getElementById('prep-img-denoise').src = previews.denoised;
+                    document.getElementById('prep-img-clahe').src = previews.clahe;
+                    document.getElementById('prep-img-segmented').src = previews.segmented;
+
+                    switchStage('stage-preprocess');
+                    showToast('Preprocessing completed!');
+                } else {
+                    showToast(data.error || 'Preprocessing failed', 'error');
+                }
+            } catch (err) {
+                showToast('Error during image preprocessing', 'error');
+            }
+        }
+
+        async function runFeatureExtraction() {
+            if (!currentFilename) {
+                showToast('Please load an image first', 'error');
+                return;
+            }
+
+            showToast('Calculating GLCM matrices & statistical moments...', 'info');
+
+            try {
+                const res = await fetch('/api/extract-features', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: currentFilename })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    currentFeatures = data.features_all;
+                    for (const [key, val] of Object.entries(data.features_all)) {
+                        const el = document.getElementById(`feat-${key}`);
+                        if (el) el.innerText = val;
+                    }
+
+                    switchStage('stage-features');
+                    showToast('15 Acoustic Biomarkers successfully extracted!');
+                } else {
+                    showToast(data.error || 'Feature extraction failed', 'error');
+                }
+            } catch (err) {
+                showToast('Error computing features', 'error');
+            }
+        }
+
+        async function triggerModelTraining() {
+            const btn = document.getElementById('btn-run-training');
+            const spinner = document.getElementById('training-spinner');
+
+            if (btn) btn.disabled = true;
+            if (spinner) spinner.classList.remove('hidden');
+
+            showToast('Training SVM, Random Forest, KNN, Decision Tree on dataset...', 'info');
+
+            try {
+                const res = await fetch('/api/train', { method: 'POST' });
+                const data = await res.json();
+
+                if (data.success) {
+                    const metrics = data.metrics;
+                    const models = metrics.models_evaluated;
+                    const bestModel = metrics.best_model;
+
+                    const tbody = document.querySelector('#benchmark-table tbody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        for (const [name, m] of Object.entries(models)) {
+                            const isChampion = (name === bestModel);
+                            const tr = document.createElement('tr');
+                            if (isChampion) tr.className = 'row-champion';
+                            tr.innerHTML = `
+                                <td><strong>${name} ${isChampion ? '⭐' : ''}</strong></td>
+                                <td><span class="badge-acc">${m.accuracy}%</span></td>
+                                <td>${m.precision}%</td>
+                                <td>${m.recall}%</td>
+                                <td><strong>${m.f1_score}%</strong></td>
+                            `;
+                            tbody.appendChild(tr);
+                        }
+                    }
+
+                    const champBadge = document.getElementById('best-model-badge');
+                    if (champBadge) champBadge.innerText = `Current Champion: ${bestModel}`;
+
+                    const bestSummary = models[bestModel];
+                    if (bestSummary) {
+                        const accEl = document.getElementById('eval-accuracy');
+                        const precEl = document.getElementById('eval-precision');
+                        const recEl = document.getElementById('eval-recall');
+                        const f1El = document.getElementById('eval-f1');
+                        const cmImg = document.getElementById('cm-image');
+
+                        if (accEl) accEl.innerText = `${bestSummary.accuracy}%`;
+                        if (precEl) precEl.innerText = `${bestSummary.precision}%`;
+                        if (recEl) recEl.innerText = `${bestSummary.recall}%`;
+                        if (f1El) f1El.innerText = `${bestSummary.f1_score}%`;
+                        if (cmImg && bestSummary.confusion_matrix_img) {
+                            cmImg.src = bestSummary.confusion_matrix_img;
+                        }
+                    }
+
+                    showToast(data.message || 'Models trained successfully!');
+                } else {
+                    showToast(data.error || 'Training failed', 'error');
+                }
+            } catch (err) {
+                showToast('Error during training execution', 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+                if (spinner) spinner.classList.add('hidden');
+            }
+        }
+
+        async function runLivePrediction() {
+            if (!currentFilename) {
+                showToast('Please load an ultrasound scan in Stage 1 first!', 'error');
+                switchStage('stage-load');
+                return;
+            }
+
+            const patientId = document.getElementById('patient-id').value;
+            const patientName = document.getElementById('patient-name').value;
+            const patientAge = document.getElementById('patient-age').value;
+            const gender = document.getElementById('patient-gender').value;
+            const notes = document.getElementById('doctor-notes').value;
+            const modelChoice = document.getElementById('predict-model-select').value;
+
+            const btn = document.getElementById('btn-run-prediction');
+            if (btn) btn.disabled = true;
+
+            showToast('Executing Machine Learning Diagnostic Inference...', 'info');
+
+            try {
+                const res = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        filename: currentFilename,
+                        model: modelChoice,
+                        patient_id: patientId,
+                        patient_name: patientName,
+                        patient_age: patientAge,
+                        gender: gender,
+                        doctor_notes: notes
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    const titleEl = document.getElementById('res-display-title');
+                    const confEl = document.getElementById('res-confidence');
+                    const sevBadge = document.getElementById('res-severity-badge');
+                    const iconWrap = document.getElementById('res-icon-wrap');
+
+                    if (titleEl) titleEl.innerText = data.display_title;
+                    if (confEl) confEl.innerText = `${data.confidence}%`;
+
+                    if (sevBadge) {
+                        sevBadge.innerText = `Risk: ${data.severity}`;
+                        sevBadge.className = `badge-severity ${data.severity_badge}`;
+                    }
+
+                    if (iconWrap) {
+                        if (data.predicted_class === 'normal') {
+                            iconWrap.innerHTML = '<i class="fa-solid fa-shield-heart text-success"></i>';
+                        } else if (data.predicted_class === 'nodule') {
+                            iconWrap.innerHTML = '<i class="fa-solid fa-circle-radiation text-danger"></i>';
+                        } else {
+                            iconWrap.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-warning"></i>';
+                        }
+                    }
+
+                    const probs = data.probability_breakdown;
+                    if (probs) {
+                        for (const cat of ['normal', 'hypothyroid', 'hyperthyroid', 'nodule']) {
+                            const pVal = probs[cat] || 0;
+                            const valEl = document.getElementById(`prob-val-${cat}`);
+                            const barEl = document.getElementById(`prob-bar-${cat}`);
+                            if (valEl) valEl.innerText = `${pVal}%`;
+                            if (barEl) barEl.style.width = `${pVal}%`;
+                        }
+                    }
+
+                    const recList = document.getElementById('res-recommendations-list');
+                    if (recList && data.recommendations) {
+                        recList.innerHTML = '';
+                        data.recommendations.forEach(r => {
+                            const li = document.createElement('li');
+                            li.innerText = r;
+                            recList.appendChild(li);
+                        });
+                    }
+
+                    const reportBtn = document.getElementById('btn-view-report');
+                    if (reportBtn && data.record_id) {
+                        reportBtn.href = `/report/${data.record_id}`;
+                        reportBtn.classList.remove('disabled');
+                    }
+
+                    const dbPill = document.getElementById('nav-db-count');
+                    if (dbPill) {
+                        const currentCount = parseInt(dbPill.innerText) || 0;
+                        dbPill.innerText = currentCount + 1;
+                    }
+
+                    showToast(`Diagnosis: ${data.display_title} (${data.confidence}% confidence) Saved to SQLite!`);
+                } else {
+                    showToast(data.error || 'Prediction failed', 'error');
+                }
+            } catch (err) {
+                showToast('Error executing diagnostic prediction', 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        async function triggerFullDemo() {
+            showToast('Starting 1-Click Complete Pipeline Demo...', 'info');
+            await loadSampleImage('sample_nodule_1.png');
+            await new Promise(r => setTimeout(r, 600));
+            await runPreprocessing();
+            await new Promise(r => setTimeout(r, 800));
+            await runFeatureExtraction();
+            await new Promise(r => setTimeout(r, 800));
+            switchStage('stage-prediction');
+            await runLivePrediction();
+            showToast('Complete pipeline demo executed successfully!');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const dropzone = document.getElementById('dropzone');
+            if (dropzone) {
+                dropzone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropzone.style.borderColor = '#0d9488';
+                    dropzone.style.background = '#f0fdfa';
+                });
+                dropzone.addEventListener('dragleave', () => {
+                    dropzone.style.borderColor = '#cbd5e1';
+                    dropzone.style.background = '#f8fafc';
+                });
+                dropzone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropzone.style.borderColor = '#cbd5e1';
+                    dropzone.style.background = '#f8fafc';
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        const mockEvent = { target: { files: e.dataTransfer.files } };
+                        handleFileUpload(mockEvent);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

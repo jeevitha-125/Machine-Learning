@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Diagnostic Records - ThyroScan AI (SQLite DB)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-brand">
+            <div class="brand-icon"><i class="fa-solid fa-dna"></i></div>
+            <div class="brand-text">
+                <h1>ThyroScan <span class="badge-ai">AI 2.0</span></h1>
+                <p>SQLite Database Patient History & Records</p>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-btn"><i class="fa-solid fa-layer-group"></i> Back to Pipeline Studio</a>
+        </div>
+    </header>
+
+    <main class="main-layout">
+        <div class="kpi-grid mb-4">
+            <div class="kpi-card">
+                <div class="kpi-icon bg-blue"><i class="fa-solid fa-hospital-user"></i></div>
+                <div class="kpi-data"><span class="kpi-val">{{ stats.total_patients }}</span><span class="kpi-lbl">Total Diagnosed Patients</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon bg-green"><i class="fa-solid fa-shield-heart"></i></div>
+                <div class="kpi-data"><span class="kpi-val">{{ stats.distribution.get('Normal Thyroid (Healthy)', 0) }}</span><span class="kpi-lbl">Normal Cases</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon bg-yellow"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                <div class="kpi-data"><span class="kpi-val">{{ stats.distribution.get('Hypothyroidism (Hashimoto Pattern)', 0) }}</span><span class="kpi-lbl">Hypothyroid Cases</span></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon bg-purple"><i class="fa-solid fa-circle-radiation"></i></div>
+                <div class="kpi-data"><span class="kpi-val">{{ stats.distribution.get('Thyroid Nodule (Focal Lesion / Suspicious)', 0) + stats.distribution.get('Hyperthyroidism (Graves / Enlarged Pattern)', 0) }}</span><span class="kpi-lbl">Nodule / Hyperthyroid</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header flex-between">
+                <div>
+                    <h3><i class="fa-solid fa-database"></i> SQLite Database Records (<code>thyroid_records.db</code>)</h3>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="filter-input" placeholder="Search patient name, ID, or condition..." onkeyup="filterRecords()" class="form-input search-input">
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <table class="table-records" id="records-table">
+                    <thead>
+                        <tr>
+                            <th>Record ID</th>
+                            <th>Patient ID</th>
+                            <th>Patient Name</th>
+                            <th>Age / Sex</th>
+                            <th>Diagnosis</th>
+                            <th>Confidence</th>
+                            <th>Severity Risk</th>
+                            <th>Date & Time</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if records %}
+                            {% for r in records %}
+                            <tr id="row-{{ r.id }}">
+                                <td><strong>#{{ r.id }}</strong></td>
+                                <td><code>{{ r.patient_id }}</code></td>
+                                <td><strong>{{ r.patient_name }}</strong></td>
+                                <td>{{ r.patient_age }} yrs / {{ r.gender }}</td>
+                                <td>
+                                    <span class="badge-diagnosis {% if 'Normal' in r.disorder_predicted %}normal{% elif 'Hypo' in r.disorder_predicted %}hypothyroid{% elif 'Hyper' in r.disorder_predicted %}hyperthyroid{% else %}nodule{% endif %}">
+                                        {{ r.disorder_predicted }}
+                                    </span>
+                                </td>
+                                <td><strong>{{ "%.1f"|format(r.confidence) }}%</strong></td>
+                                <td>
+                                    <span class="badge-risk {% if 'High' in r.severity %}high{% elif 'Moderate' in r.severity %}mod{% else %}low{% endif %}">
+                                        {{ r.severity }}
+                                    </span>
+                                </td>
+                                <td><small>{{ r.created_at }}</small></td>
+                                <td>
+                                    <div class="btn-group-sm">
+                                        <a href="/report/{{ r.id }}" target="_blank" class="btn btn-sm btn-primary">
+                                            <i class="fa-solid fa-print"></i> Report
+                                        </a>
+                                        <button onclick="deleteRecord({{ r.id }})" class="btn btn-sm btn-danger">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="9" class="text-center text-muted p-4">No records found in SQLite database yet.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function filterRecords() {
+            const query = document.getElementById('filter-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#records-table tbody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        async function deleteRecord(id) {
+            if (!confirm(`Are you sure you want to delete patient record #${id}?`)) return;
+            try {
+                const res = await fetch(`/api/history/delete/${id}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    const row = document.getElementById(`row-${id}`);
+                    if (row) row.remove();
+                }
+            } catch (err) {
+                alert("Error connecting to server");
+            }
+        }
+    </script>
+</body>
+</html>
